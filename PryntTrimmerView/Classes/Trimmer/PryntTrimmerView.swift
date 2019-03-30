@@ -9,7 +9,7 @@
 import AVFoundation
 import UIKit
 
-public protocol TrimmerViewDelegate: class {
+@objc public protocol TrimmerViewDelegate: class {
     func didChangePositionBar(_ playerTime: CMTime)
     func positionBarStoppedMoving(_ playerTime: CMTime)
 }
@@ -48,7 +48,7 @@ public protocol TrimmerViewDelegate: class {
 
     // MARK: Interface
 
-    public weak var delegate: TrimmerViewDelegate?
+    @objc public weak var delegate: TrimmerViewDelegate?
 
     // MARK: Subviews
 
@@ -72,14 +72,14 @@ public protocol TrimmerViewDelegate: class {
     private let handleWidth: CGFloat = 15
 
     /// The maximum duration allowed for the trimming. Change it before setting the asset, as the asset preview
-    public var maxDuration: Double = 15 {
+    @objc public var maxDuration: Double = 15 {
         didSet {
             assetPreview.maxDuration = maxDuration
         }
     }
 
     /// The minimum duration allowed for the trimming. The handles won't pan further if the minimum duration is attained.
-    public var minDuration: Double = 3
+    @objc public var minDuration: Double = 3
 
     // MARK: - View & constraints configurations
 
@@ -283,7 +283,7 @@ public protocol TrimmerViewDelegate: class {
     // MARK: - Time Equivalence
 
     /// Move the position bar to the given time.
-    public func seek(to time: CMTime) {
+    @objc public func seek(to time: CMTime) {
         if let newPosition = getPosition(from: time) {
 
             let offsetPosition = newPosition - assetPreview.contentOffset.x - leftHandleView.frame.origin.x
@@ -301,12 +301,24 @@ public protocol TrimmerViewDelegate: class {
         return getTime(from: startPosition)
     }
 
+    @objc public func getStartTime() -> Int64 {
+        let startPosition = leftHandleView.frame.origin.x + assetPreview.contentOffset.x
+        let theStartTime: CMTime? = getTime(from: startPosition)
+        return theStartTime?.value ?? 0
+    }
+
     /// The selected end time for the current asset.
     public var endTime: CMTime? {
         let endPosition = rightHandleView.frame.origin.x + assetPreview.contentOffset.x - handleWidth
         return getTime(from: endPosition)
     }
 
+    @objc public func getEndTime() -> Int64 {
+        let endPosition = rightHandleView.frame.origin.x + assetPreview.contentOffset.x - handleWidth
+        let theEndTime: CMTime? = getTime(from: endPosition)
+        return theEndTime?.value ?? 0
+    }
+    
     private func updateSelectedTime(stoppedMoving: Bool) {
         guard let playerTime = positionBarTime else {
             return
