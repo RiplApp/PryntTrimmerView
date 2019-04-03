@@ -295,6 +295,19 @@ import UIKit
         }
     }
 
+    @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
+
+        let theLeftHandlePosition = getPosition(from: startTime)!
+        let theCurrentEndTime = endTime
+        let theNewEndTime = CMTimeAdd( startTime, duration )
+        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ?? CMTime.zero ) )
+
+        updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
+        updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
+
+        layoutIfNeeded()
+    }
+
     /// The selected start time for the current asset.
     public var startTime: CMTime? {
         let startPosition = leftHandleView.frame.origin.x + assetPreview.contentOffset.x
