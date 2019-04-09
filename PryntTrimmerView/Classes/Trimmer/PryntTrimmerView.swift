@@ -71,14 +71,17 @@ import UIKit
 
     private let handleWidth: CGFloat = 15
 
-    /// The maximum duration allowed for the trimming. Change it before setting the asset, as the asset preview
-    @objc public var maxDuration: Double = 15 {
+    /// The maximum duration displayed for the width of the control. Change it before setting the asset, as the asset preview
+    @objc public var maxDisplayDuration: Double = 15 {
         didSet {
-            assetPreview.maxDuration = maxDuration
+            assetPreview.maxDuration = maxDisplayDuration
         }
     }
 
-    /// The minimum duration allowed for the trimming. The handles won't pan further if the minimum duration is attained.
+    /// The maximum duration allowed for the trimming. The handles won't pan further out if the maximum duration is attained.
+    @objc public var maxDuration: Double = 15
+
+    /// The minimum duration allowed for the trimming. The handles won't pan further in if the minimum duration is attained.
     @objc public var minDuration: Double = 3
 
     // MARK: - View & constraints configurations
@@ -256,14 +259,18 @@ import UIKit
     }
 
     private func updateLeftConstraint(with translation: CGPoint) {
-        let maxConstraint = max(rightHandleView.frame.origin.x - handleWidth - minimumDistanceBetweenHandle, 0)
-        let newConstraint = min(max(0, currentLeftConstraint + translation.x), maxConstraint)
+        let maxConstraint = rightHandleView.frame.origin.x - minimumDistanceBetweenHandle - handleWidth
+        let minConstraint = max(0, rightHandleView.frame.origin.x - maximumDistanceBetweenHandle - handleWidth )
+        let theWantedNewX = currentLeftConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, theWantedNewX), minConstraint)
         leftConstraint?.constant = newConstraint
     }
 
     private func updateRightConstraint(with translation: CGPoint) {
-        let maxConstraint = min(2 * handleWidth - frame.width + leftHandleView.frame.origin.x + minimumDistanceBetweenHandle, 0)
-        let newConstraint = max(min(0, currentRightConstraint + translation.x), maxConstraint)
+        let maxConstraint = min(0, leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width)
+        let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
+        let theWantedNewX = currentRightConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, theWantedNewX), minConstraint)
         rightConstraint?.constant = newConstraint
     }
 
@@ -277,6 +284,7 @@ import UIKit
     private func resetHandleViewPosition() {
         leftConstraint?.constant = 0
         rightConstraint?.constant = 0
+        updateRightConstraint(with: CGPoint( x: 0, y: 0) )
         layoutIfNeeded()
     }
 
@@ -351,6 +359,11 @@ import UIKit
     private var minimumDistanceBetweenHandle: CGFloat {
         guard let asset = asset else { return 0 }
         return CGFloat(minDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
+    }
+
+    private var maximumDistanceBetweenHandle: CGFloat {
+        guard let asset = asset else { return 0 }
+        return CGFloat(maxDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
     }
 
     // MARK: - Scroll View Delegate
