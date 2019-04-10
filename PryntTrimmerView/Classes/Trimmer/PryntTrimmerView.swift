@@ -241,9 +241,9 @@ import UIKit
         case .changed:
             let translation = gestureRecognizer.translation(in: superView)
             if isLeftGesture {
-                updateLeftConstraint(with: translation)
+                updateLeftConstraint(with: translation, shouldNotifyDelegateOfMaxDuration: true)
             } else {
-                updateRightConstraint(with: translation)
+                updateRightConstraint(with: translation, shouldNotifyDelegateOfMaxDuration: true)
             }
             layoutIfNeeded()
             if let startTime = startTime, isLeftGesture {
@@ -259,7 +259,7 @@ import UIKit
         }
     }
 
-    private func updateLeftConstraint(with translation: CGPoint) {
+    private func updateLeftConstraint(with translation: CGPoint, shouldNotifyDelegateOfMaxDuration: Bool = false) {
         let maxConstraint = rightHandleView.frame.origin.x - minimumDistanceBetweenHandle - handleWidth
         let minXFromMaxDistance = rightHandleView.frame.origin.x - maximumDistanceBetweenHandle - handleWidth
         let minConstraint = max(0, minXFromMaxDistance )
@@ -267,13 +267,13 @@ import UIKit
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         leftConstraint?.constant = newConstraint
         
-        if( desiredX < minXFromMaxDistance )
+        if( shouldNotifyDelegateOfMaxDuration && desiredX < minXFromMaxDistance )
         {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
     }
 
-    private func updateRightConstraint(with translation: CGPoint) {
+    private func updateRightConstraint(with translation: CGPoint, shouldNotifyDelegateOfMaxDuration: Bool = false) {
         let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
         let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
@@ -281,7 +281,7 @@ import UIKit
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
         
-        if( desiredX > maxXFromMaxDistance )
+        if( shouldNotifyDelegateOfMaxDuration && desiredX > maxXFromMaxDistance )
         {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
