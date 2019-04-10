@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'PryntTrimmerView'
-  s.version          = '3.0.3'
+  s.version          = '3.0.4'
   s.summary          = 'A set of tools written in swift to help you trim and crop a video.'
 
   s.description      = <<-DESC
