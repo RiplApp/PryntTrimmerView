@@ -12,6 +12,7 @@ import UIKit
 @objc public protocol TrimmerViewDelegate: class {
     func didChangePositionBar(_ playerTime: CMTime)
     func positionBarStoppedMoving(_ playerTime: CMTime)
+    func didTryToMovePositionBarPastMaxDuration()
 }
 
 /// A view to select a specific time range of a video. It consists of an asset preview with thumbnails inside a scroll view, two
@@ -260,18 +261,30 @@ import UIKit
 
     private func updateLeftConstraint(with translation: CGPoint) {
         let maxConstraint = rightHandleView.frame.origin.x - minimumDistanceBetweenHandle - handleWidth
-        let minConstraint = max(0, rightHandleView.frame.origin.x - maximumDistanceBetweenHandle - handleWidth )
-        let theWantedNewX = currentLeftConstraint + translation.x
-        let newConstraint = max(min(maxConstraint, theWantedNewX), minConstraint)
+        let minXFromMaxDistance = rightHandleView.frame.origin.x - maximumDistanceBetweenHandle - handleWidth
+        let minConstraint = max(0, minXFromMaxDistance )
+        let desiredX = currentLeftConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         leftConstraint?.constant = newConstraint
+        
+        if( desiredX < minXFromMaxDistance )
+        {
+            delegate?.didTryToMovePositionBarPastMaxDuration()
+        }
     }
 
     private func updateRightConstraint(with translation: CGPoint) {
-        let maxConstraint = min(0, leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width)
+        let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
+        let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
-        let theWantedNewX = currentRightConstraint + translation.x
-        let newConstraint = max(min(maxConstraint, theWantedNewX), minConstraint)
+        let desiredX = currentRightConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
+        
+        if( desiredX > maxXFromMaxDistance )
+        {
+            delegate?.didTryToMovePositionBarPastMaxDuration()
+        }
     }
 
     // MARK: - Asset loading
