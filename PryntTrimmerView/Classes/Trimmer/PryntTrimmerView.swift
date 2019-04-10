@@ -12,6 +12,7 @@ import UIKit
 @objc public protocol TrimmerViewDelegate: class {
     func didChangePositionBar(_ playerTime: CMTime)
     func positionBarStoppedMoving(_ playerTime: CMTime)
+    func didTryToMovePositionBarPastMaxDuration()
 }
 
 /// A view to select a specific time range of a video. It consists of an asset preview with thumbnails inside a scroll view, two
@@ -71,14 +72,17 @@ import UIKit
 
     private let handleWidth: CGFloat = 15
 
-    /// The maximum duration allowed for the trimming. Change it before setting the asset, as the asset preview
-    @objc public var maxDuration: Double = 15 {
+    /// The maximum duration displayed for the width of the control. Change it before setting the asset, as the asset preview
+    @objc public var maxDisplayDuration: Double = 15 {
         didSet {
-            assetPreview.maxDuration = maxDuration
+            assetPreview.maxDuration = maxDisplayDuration
         }
     }
 
-    /// The minimum duration allowed for the trimming. The handles won't pan further if the minimum duration is attained.
+    /// The maximum duration allowed for the trimming. The handles won't pan further out if the maximum duration is attained.
+    @objc public var maxDuration: Double = 15
+
+    /// The minimum duration allowed for the trimming. The handles won't pan further in if the minimum duration is attained.
     @objc public var minDuration: Double = 3
 
     // MARK: - View & constraints configurations
@@ -256,15 +260,31 @@ import UIKit
     }
 
     private func updateLeftConstraint(with translation: CGPoint) {
-        let maxConstraint = max(rightHandleView.frame.origin.x - handleWidth - minimumDistanceBetweenHandle, 0)
-        let newConstraint = min(max(0, currentLeftConstraint + translation.x), maxConstraint)
+        let maxConstraint = rightHandleView.frame.origin.x - minimumDistanceBetweenHandle - handleWidth
+        let minXFromMaxDistance = rightHandleView.frame.origin.x - maximumDistanceBetweenHandle - handleWidth
+        let minConstraint = max(0, minXFromMaxDistance )
+        let desiredX = currentLeftConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         leftConstraint?.constant = newConstraint
+        
+        if( desiredX < minXFromMaxDistance )
+        {
+            delegate?.didTryToMovePositionBarPastMaxDuration()
+        }
     }
 
     private func updateRightConstraint(with translation: CGPoint) {
-        let maxConstraint = min(2 * handleWidth - frame.width + leftHandleView.frame.origin.x + minimumDistanceBetweenHandle, 0)
-        let newConstraint = max(min(0, currentRightConstraint + translation.x), maxConstraint)
+        let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
+        let maxConstraint = min(0, maxXFromMaxDistance)
+        let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
+        let desiredX = currentRightConstraint + translation.x
+        let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
+        
+        if( desiredX > maxXFromMaxDistance )
+        {
+            delegate?.didTryToMovePositionBarPastMaxDuration()
+        }
     }
 
     // MARK: - Asset loading
@@ -277,6 +297,7 @@ import UIKit
     private func resetHandleViewPosition() {
         leftConstraint?.constant = 0
         rightConstraint?.constant = 0
+        updateRightConstraint(with: CGPoint( x: 0, y: 0) )
         layoutIfNeeded()
     }
 
@@ -351,6 +372,11 @@ import UIKit
     private var minimumDistanceBetweenHandle: CGFloat {
         guard let asset = asset else { return 0 }
         return CGFloat(minDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
+    }
+
+    private var maximumDistanceBetweenHandle: CGFloat {
+        guard let asset = asset else { return 0 }
+        return CGFloat(maxDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
     }
 
     // MARK: - Scroll View Delegate
