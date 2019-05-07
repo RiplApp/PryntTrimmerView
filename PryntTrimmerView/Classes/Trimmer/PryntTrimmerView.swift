@@ -69,8 +69,17 @@ import UIKit
     private var leftConstraint: NSLayoutConstraint?
     private var rightConstraint: NSLayoutConstraint?
     private var positionConstraint: NSLayoutConstraint?
+    private var rightMaskRightConstraint: NSLayoutConstraint?
+    private var leftMaskLeftConstraint: NSLayoutConstraint?
 
     private let handleWidth: CGFloat = 15
+    
+    /// The additional width of the mask layer beyond the width of the control
+    @objc public var maskOverflowWidth: CGFloat = 0 {
+        didSet {
+            updateMaskConstraints()
+        }
+    }
 
     /// The maximum duration displayed for the width of the control. Change it before setting the asset, as the asset preview
     @objc public var maxDisplayDuration: Double = 15 {
@@ -99,6 +108,7 @@ import UIKit
         setupGestures()
         updateMainColor()
         updateHandleColor()
+        clipsToBounds = false
     }
 
     override func constrainAssetPreview() {
@@ -171,7 +181,8 @@ import UIKit
         leftMaskView.translatesAutoresizingMaskIntoConstraints = false
         insertSubview(leftMaskView, belowSubview: leftHandleView)
 
-        leftMaskView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
+        leftMaskLeftConstraint = leftMaskView.leftAnchor.constraint(equalTo: leftAnchor, constant: -maskOverflowWidth )
+        leftMaskLeftConstraint?.isActive = true
         leftMaskView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         leftMaskView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         leftMaskView.rightAnchor.constraint(equalTo: leftHandleView.centerXAnchor).isActive = true
@@ -182,12 +193,19 @@ import UIKit
         rightMaskView.translatesAutoresizingMaskIntoConstraints = false
         insertSubview(rightMaskView, belowSubview: rightHandleView)
 
-        rightMaskView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
+        rightMaskRightConstraint = rightMaskView.rightAnchor.constraint(equalTo: rightAnchor, constant: maskOverflowWidth )
+        rightMaskRightConstraint?.isActive = true
         rightMaskView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         rightMaskView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         rightMaskView.leftAnchor.constraint(equalTo: rightHandleView.centerXAnchor).isActive = true
     }
 
+    private func updateMaskConstraints() {
+        leftMaskLeftConstraint?.constant = -maskOverflowWidth
+        rightMaskRightConstraint?.constant = maskOverflowWidth
+        layoutIfNeeded()
+    }
+    
     private func setupPositionBar() {
 
         positionBar.frame = CGRect(x: 0, y: 0, width: 3, height: frame.height)

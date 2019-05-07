@@ -36,6 +36,7 @@ class VideoScrollView: UIView {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
         scrollView.delegate = self
+        scrollView.clipsToBounds = false
         addSubview(scrollView)
 
         scrollView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
