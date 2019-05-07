@@ -32,7 +32,7 @@ class AssetVideoScrollView: UIScrollView {
         backgroundColor = .clear
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
-        clipsToBounds = true
+        clipsToBounds = false
 
         contentView.backgroundColor = .clear
         contentView.translatesAutoresizingMaskIntoConstraints = false

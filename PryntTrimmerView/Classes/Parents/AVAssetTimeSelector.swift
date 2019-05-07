@@ -13,10 +13,10 @@ import AVFoundation
 // the asset and a position in the scroll view
 public class AVAssetTimeSelector: UIView, UIScrollViewDelegate {
 
-    let assetPreview = AssetVideoScrollView()
+    @objc let assetPreview = AssetVideoScrollView()
 
     /// The asset to be displayed in the underlying scroll view. Setting a new asset will automatically refresh the thumbnails.
-    public var asset: AVAsset? {
+    @objc public var asset: AVAsset? {
         didSet {
             assetDidChange(newAsset: asset)
         }
