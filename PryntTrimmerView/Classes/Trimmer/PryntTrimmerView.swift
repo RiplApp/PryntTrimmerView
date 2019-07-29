@@ -93,6 +93,8 @@ import UIKit
 
     /// The minimum duration allowed for the trimming. The handles won't pan further in if the minimum duration is attained.
     @objc public var minDuration: Double = 3
+    
+    @objc public var defaultSelectedDuration: Float64 = 0
 
     // MARK: - View & constraints configurations
 
@@ -285,7 +287,7 @@ import UIKit
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         leftConstraint?.constant = newConstraint
         
-        if( shouldNotifyDelegateOfMaxDuration && desiredX < minXFromMaxDistance )
+        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() )
         {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
@@ -299,7 +301,7 @@ import UIKit
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
         
-        if( shouldNotifyDelegateOfMaxDuration && desiredX > maxXFromMaxDistance )
+        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() )
         {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
@@ -395,6 +397,18 @@ import UIKit
     private var maximumDistanceBetweenHandle: CGFloat {
         guard let asset = asset else { return 0 }
         return CGFloat(maxDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
+    }
+    
+    private func hasExceededDefaultDuration() -> Bool {
+        return defaultSelectedDuration != 0 && getDuration() > defaultSelectedDuration
+    }
+    
+    public func clearDefaultSelectedDuration() {
+        defaultSelectedDuration = 0
+    }
+    
+    private func getDuration() -> Float64 {
+        return CMTimeGetSeconds( CMTimeSubtract(endTime ?? CMTime.zero, startTime ?? CMTime.zero) )
     }
 
     // MARK: - Scroll View Delegate
