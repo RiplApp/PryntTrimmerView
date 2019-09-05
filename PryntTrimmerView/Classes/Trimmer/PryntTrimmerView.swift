@@ -343,9 +343,8 @@ import UIKit
         let theNewEndTime = CMTimeAdd( startTime, duration )
         let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ) )
 
-        print("James log is working")
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
-//        updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
+        updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
 
         layoutIfNeeded()
     }
