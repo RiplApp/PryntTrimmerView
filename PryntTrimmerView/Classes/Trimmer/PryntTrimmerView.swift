@@ -339,10 +339,11 @@ import UIKit
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
         let theLeftHandlePosition = getPosition(from: startTime)!
-        let theCurrentEndTime = endTime
+        let theCurrentEndTime = CMTimeMake(value: Int64(maxDisplayDuration), timescale: duration.timescale)
         let theNewEndTime = CMTimeAdd( startTime, duration )
-        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ?? CMTime.zero ) )
+        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ) )
 
+        print("James log is working")
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
         updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
 
