@@ -8,6 +8,7 @@
 
 import AVFoundation
 import UIKit
+import os.log
 
 @objc public protocol TrimmerViewDelegate: class {
     func didChangePositionBar(_ playerTime: CMTime)
@@ -297,6 +298,7 @@ import UIKit
         let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
         let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
+        os_log("This is a log message.")
         let desiredX = translation.x
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
