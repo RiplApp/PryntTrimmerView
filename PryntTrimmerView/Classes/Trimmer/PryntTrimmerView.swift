@@ -341,7 +341,7 @@ import UIKit
         let theLeftHandlePosition = getPosition(from: startTime)!
 //        let theCurrentEndTime = CMTimeMake(value: Int64(maxDisplayDuration), timescale: duration.timescale)
         let theNewEndTime = CMTimeAdd( startTime, duration )
-        let theRightHandlePosition = getPosition(from: theNewEndTime ) )
+        let theRightHandlePosition = getPosition(from: theNewEndTime )
 
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
         updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
