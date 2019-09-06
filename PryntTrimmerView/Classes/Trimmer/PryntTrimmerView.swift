@@ -297,7 +297,7 @@ import UIKit
         let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
         let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
-        let desiredX = currentRightConstraint + translation.x
+        let desiredX = translation.x
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
         
@@ -339,9 +339,9 @@ import UIKit
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
         let theLeftHandlePosition = getPosition(from: startTime)!
-        let theCurrentEndTime = CMTimeMake(value: Int64(maxDisplayDuration), timescale: duration.timescale)
+//        let theCurrentEndTime = CMTimeMake(value: Int64(maxDisplayDuration), timescale: duration.timescale)
         let theNewEndTime = CMTimeAdd( startTime, duration )
-        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ) )
+        let theRightHandlePosition = getPosition(from: theNewEndTime ) )
 
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
         updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
