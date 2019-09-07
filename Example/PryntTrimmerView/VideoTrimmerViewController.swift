@@ -67,6 +67,25 @@ class VideoTrimmerViewController: AssetSelectionViewController {
         layer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         playerView.layer.sublayers?.forEach({$0.removeFromSuperlayer()})
         playerView.layer.addSublayer(layer)
+
+        logTrimState()
+        updateTrimToSeconds( anEndTimeInSeconds: 5)
+        logTrimState()
+        updateTrimToSeconds( anEndTimeInSeconds: 5)
+        logTrimState()
+    }
+    func updateTrimToSeconds( anEndTimeInSeconds: Float64) {
+        trimmerView.updateFor(startTime: CMTimeMakeWithSeconds(0, (trimmerView.asset?.duration.timescale)!),
+                              duration: CMTimeMakeWithSeconds(anEndTimeInSeconds, (trimmerView.asset?.duration.timescale)!))
+    }
+
+    func logTrimState() {
+        let theEndTimeValue = trimmerView.getEndTime()
+        let theEndTime = CMTimeMake( theEndTimeValue, (trimmerView.asset?.duration.timescale)! )
+        let theStartTimeValue = trimmerView.getStartTime()
+        let theStartTime = CMTimeMake( theStartTimeValue, (trimmerView.asset?.duration.timescale)! )
+        let theDuration = CMTimeSubtract( theEndTime, theStartTime )
+        print( "theDuration ", CMTimeGetSeconds( theDuration ))
     }
 
     @objc func itemDidFinishPlaying(_ notification: Notification) {
@@ -106,6 +125,10 @@ class VideoTrimmerViewController: AssetSelectionViewController {
 }
 
 extension VideoTrimmerViewController: TrimmerViewDelegate {
+    func didTryToMovePositionBarPastMaxDuration() {
+        print("didTryToMovePositionBarPastMaxDuration")
+    }
+
     func positionBarStoppedMoving(_ playerTime: CMTime) {
         player?.seek(to: playerTime, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero)
         player?.play()
