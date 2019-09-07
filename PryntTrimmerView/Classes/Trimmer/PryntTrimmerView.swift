@@ -355,7 +355,7 @@ import UIKit
         updateRightConstraint(with: CGPoint( x: (theRightHandlePositionTranslationX ?? 0), y: 0) )
 
         currentRightConstraint = rightConstraint?.constant ?? 0
-        currentLeftConstraint = leftConstraint?.constant ?? 0
+//        currentLeftConstraint = leftConstraint?.constant ?? 0
         layoutIfNeeded()
     }
 
