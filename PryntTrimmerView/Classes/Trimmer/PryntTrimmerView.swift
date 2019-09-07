@@ -297,7 +297,11 @@ import UIKit
         let maxXFromMaxDistance = leftHandleView.frame.origin.x + 2*handleWidth + maximumDistanceBetweenHandle - frame.width
         let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
-        let desiredX = rightConstraint!.constant + translation.x
+        let desiredX = currentRightConstraint + translation.x
+
+        print( "maxConstraint", maxConstraint )
+        print( "desiredX", desiredX )
+
         print( "rightConstraint!.constant: ", rightConstraint!.constant )
         print( "currentRightConstraint: ", currentRightConstraint )
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
@@ -340,14 +344,18 @@ import UIKit
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
         let theLeftHandlePosition = getPosition(from: startTime)!
-        let theCurrentContentEndPosition = assetPreview.contentView.frame.width
-        let theCurrentEndTime = getTime(from: theCurrentContentEndPosition )
+//        let theCurrentContentEndPosition = assetPreview.contentView.frame.width
+//        let theCurrentEndTime = getTime(from: theCurrentContentEndPosition )
+        let theCurrentEndTime = endTime
         let theNewEndTime = CMTimeAdd( startTime, duration )
-        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime, theCurrentEndTime ?? CMTime.zero ) )
+        let theRightHandlePositionTranslationX = getPosition(from: CMTimeSubtract(theNewEndTime, theCurrentEndTime ?? CMTime.zero ) )
 
+        print( "theRightHandlePositionTranslationX", theRightHandlePositionTranslationX )
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
-        updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
+        updateRightConstraint(with: CGPoint( x: (theRightHandlePositionTranslationX ?? 0), y: 0) )
 
+        currentRightConstraint = rightConstraint?.constant ?? 0
+        currentLeftConstraint = leftConstraint?.constant ?? 0
         layoutIfNeeded()
     }
 
