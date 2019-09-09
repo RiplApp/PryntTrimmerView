@@ -101,7 +101,6 @@ import UIKit
     override func setupSubviews() {
 
         super.setupSubviews()
-        print("TrimmerView setupSubviews")
         backgroundColor = UIColor.clear
         layer.zPosition = 1
         setupTrimmerView()
@@ -299,11 +298,6 @@ import UIKit
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
         let desiredX = currentRightConstraint + translation.x
 
-        print( "maxConstraint", maxConstraint )
-        print( "desiredX", desiredX )
-
-        print( "rightConstraint!.constant: ", rightConstraint!.constant )
-        print( "currentRightConstraint: ", currentRightConstraint )
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
 
@@ -343,19 +337,15 @@ import UIKit
 
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
+        currentRightConstraint = rightConstraint?.constant ?? 0
+
         let theLeftHandlePosition = getPosition(from: startTime)!
-//        let theCurrentContentEndPosition = assetPreview.contentView.frame.width
-//        let theCurrentEndTime = getTime(from: theCurrentContentEndPosition )
         let theCurrentEndTime = endTime
         let theNewEndTime = CMTimeAdd( startTime, duration )
         let theRightHandlePositionTranslationX = getPosition(from: CMTimeSubtract(theNewEndTime, theCurrentEndTime ?? CMTime.zero ) )
 
-        print( "theRightHandlePositionTranslationX", theRightHandlePositionTranslationX )
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
         updateRightConstraint(with: CGPoint( x: (theRightHandlePositionTranslationX ?? 0), y: 0) )
-
-        currentRightConstraint = rightConstraint?.constant ?? 0
-//        currentLeftConstraint = leftConstraint?.constant ?? 0
         layoutIfNeeded()
     }
 

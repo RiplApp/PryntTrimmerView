@@ -68,14 +68,11 @@ class VideoTrimmerViewController: AssetSelectionViewController {
         playerView.layer.sublayers?.forEach({$0.removeFromSuperlayer()})
         playerView.layer.addSublayer(layer)
 
-        logTrimState()
-        updateTrimToSeconds( anEndTimeInSeconds: 5)
-        logTrimState()
-        updateTrimToSeconds( anEndTimeInSeconds: 5)
+        updateTrimToSeconds( aStartTimeInSeconds: 3, anEndTimeInSeconds: 15)
         logTrimState()
     }
-    func updateTrimToSeconds( anEndTimeInSeconds: Float64) {
-        trimmerView.updateFor(startTime: CMTimeMakeWithSeconds(0, (trimmerView.asset?.duration.timescale)!),
+    func updateTrimToSeconds( aStartTimeInSeconds: Float64, anEndTimeInSeconds: Float64) {
+        trimmerView.updateFor(startTime: CMTimeMakeWithSeconds( aStartTimeInSeconds, (trimmerView.asset?.duration.timescale)!),
                               duration: CMTimeMakeWithSeconds(anEndTimeInSeconds, (trimmerView.asset?.duration.timescale)!))
     }
 
