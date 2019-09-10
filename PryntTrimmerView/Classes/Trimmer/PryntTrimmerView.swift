@@ -99,7 +99,6 @@ import UIKit
     // MARK: - View & constraints configurations
 
     override func setupSubviews() {
-
         super.setupSubviews()
         backgroundColor = UIColor.clear
         layer.zPosition = 1
@@ -338,14 +337,24 @@ import UIKit
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
         currentRightConstraint = rightConstraint?.constant ?? 0
+        currentLeftConstraint = leftConstraint?.constant ?? 0
 
-        let theLeftHandlePosition = getPosition(from: startTime)!
+        let originalMaxDuration = maxDuration
+        maxDuration = maxDisplayDuration
+
         let theCurrentEndTime = endTime
         let theNewEndTime = CMTimeAdd( startTime, duration )
         let theRightHandlePositionTranslationX = getPosition(from: CMTimeSubtract(theNewEndTime, theCurrentEndTime ?? CMTime.zero ) )
-
-        updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
         updateRightConstraint(with: CGPoint( x: (theRightHandlePositionTranslationX ?? 0), y: 0) )
+
+        setNeedsLayout()
+        layoutIfNeeded()
+
+        let theLeftHandlePosition = getPosition(from: startTime)!
+        updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
+
+        maxDuration = originalMaxDuration
+
         layoutIfNeeded()
     }
 
