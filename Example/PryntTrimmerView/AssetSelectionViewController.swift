@@ -22,6 +22,7 @@ class AssetSelectionViewController: UIViewController {
         PHPhotoLibrary.requestAuthorization { (status) in
             if status == .authorized {
                 self.fetchResult = PHAsset.fetchAssets(with: .video, options: nil)
+                self.loadAssetRandomly()
             }
         }
     }

@@ -73,7 +73,7 @@ import UIKit
     private var leftMaskLeftConstraint: NSLayoutConstraint?
 
     private let handleWidth: CGFloat = 15
-    
+
     /// The additional width of the mask layer beyond the width of the control
     @objc public var maskOverflowWidth: CGFloat = 0 {
         didSet {
@@ -93,13 +93,12 @@ import UIKit
 
     /// The minimum duration allowed for the trimming. The handles won't pan further in if the minimum duration is attained.
     @objc public var minDuration: Double = 3
-    
+
     @objc public var defaultSelectedDuration: Float64 = 0
 
     // MARK: - View & constraints configurations
 
     override func setupSubviews() {
-
         super.setupSubviews()
         backgroundColor = UIColor.clear
         layer.zPosition = 1
@@ -207,7 +206,7 @@ import UIKit
         rightMaskRightConstraint?.constant = maskOverflowWidth
         layoutIfNeeded()
     }
-    
+
     private func setupPositionBar() {
 
         positionBar.frame = CGRect(x: 0, y: 0, width: 3, height: frame.height)
@@ -286,9 +285,8 @@ import UIKit
         let desiredX = currentLeftConstraint + translation.x
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         leftConstraint?.constant = newConstraint
-        
-        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() )
-        {
+
+        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() ) {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
     }
@@ -298,11 +296,11 @@ import UIKit
         let maxConstraint = min(0, maxXFromMaxDistance)
         let minConstraint = leftHandleView.frame.origin.x + 2*handleWidth + minimumDistanceBetweenHandle - frame.width
         let desiredX = currentRightConstraint + translation.x
+
         let newConstraint = max(min(maxConstraint, desiredX), minConstraint)
         rightConstraint?.constant = newConstraint
-        
-        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() )
-        {
+
+        if( shouldNotifyDelegateOfMaxDuration && hasExceededDefaultDuration() ) {
             delegate?.didTryToMovePositionBarPastMaxDuration()
         }
     }
@@ -338,13 +336,24 @@ import UIKit
 
     @objc public func updateFor( startTime: CMTime, duration: CMTime ) {
 
-        let theLeftHandlePosition = getPosition(from: startTime)!
+        currentRightConstraint = rightConstraint?.constant ?? 0
+        currentLeftConstraint = leftConstraint?.constant ?? 0
+
+        let originalMaxDuration = maxDuration
+        maxDuration = maxDisplayDuration
+
         let theCurrentEndTime = endTime
         let theNewEndTime = CMTimeAdd( startTime, duration )
-        let theRightHandlePosition = getPosition(from: CMTimeSubtract(theNewEndTime,theCurrentEndTime ?? CMTime.zero ) )
+        let theRightHandlePositionTranslationX = getPosition(from: CMTimeSubtract(theNewEndTime, theCurrentEndTime ?? CMTime.zero ) )
+        updateRightConstraint(with: CGPoint( x: (theRightHandlePositionTranslationX ?? 0), y: 0) )
 
+        setNeedsLayout()
+        layoutIfNeeded()
+
+        let theLeftHandlePosition = getPosition(from: startTime)!
         updateLeftConstraint(with: CGPoint( x: theLeftHandlePosition, y: 0) )
-        updateRightConstraint(with: CGPoint( x: (theRightHandlePosition ?? 0), y: 0) )
+
+        maxDuration = originalMaxDuration
 
         layoutIfNeeded()
     }
@@ -372,7 +381,7 @@ import UIKit
         let theEndTime: CMTime? = getTime(from: endPosition)
         return theEndTime?.value ?? 0
     }
-    
+
     private func updateSelectedTime(stoppedMoving: Bool) {
         guard let playerTime = positionBarTime else {
             return
@@ -398,15 +407,15 @@ import UIKit
         guard let asset = asset else { return 0 }
         return CGFloat(maxDuration) * assetPreview.contentView.frame.width / CGFloat(asset.duration.seconds)
     }
-    
+
     private func hasExceededDefaultDuration() -> Bool {
         return defaultSelectedDuration != 0 && getDuration() > defaultSelectedDuration
     }
-    
+
     public func clearDefaultSelectedDuration() {
         defaultSelectedDuration = 0
     }
-    
+
     private func getDuration() -> Float64 {
         return CMTimeGetSeconds( CMTimeSubtract(endTime ?? CMTime.zero, startTime ?? CMTime.zero) )
     }
